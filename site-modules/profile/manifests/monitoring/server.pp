@@ -107,7 +107,7 @@ class profile::monitoring::server (
     extra_options  => '--web.enable-admin-api',
     scrape_configs => [
       {
-        'job_name'        => 'prometheus',
+        'job_name'        => 'prometheus_puppet',
         'scrape_interval' => '10s',
         'scrape_timeout'  => '10s',
         'static_configs'  => [
