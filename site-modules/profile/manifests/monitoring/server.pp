@@ -326,7 +326,8 @@ class profile::monitoring::server (
     nginx_version => $nginx_version,
   }
 
-  class{ 'nginx::resource::server':
+  nginx::resource::server { 'default':
+    ensure      => present,
     listen_port => 8000,
   }
 
