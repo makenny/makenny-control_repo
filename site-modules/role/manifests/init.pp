@@ -2,5 +2,8 @@
 
 #
 class role {
-  # this is the base role
+  notify { "${module_name} base":
+    message  => 'applied',
+    loglevel => 'info',
+  }
 }

@@ -371,7 +371,7 @@ class profile::monitoring::server (
     chain   => 'INPUT',
     action  => 'CONSUL',
     proto   => ['udp', 'tcp'],
-    dport   => '(8301 8302)',
+    dport   => [8301, 8302],
     require => Ferm::Chain['CONSUL'],
   }
 
