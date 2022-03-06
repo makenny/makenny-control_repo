@@ -326,11 +326,6 @@ class profile::monitoring::server (
     nginx_version => $nginx_version,
   }
 
-  nginx::resource::server { 'default':
-    ensure      => present,
-    listen_port => 8000,
-  }
-
   consul::service { 'node-exporter':
     checks  => [
       {
