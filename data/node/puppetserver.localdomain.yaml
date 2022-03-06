@@ -1,2 +1,3 @@
 ---
 profile::monitoring::server: true
+nginx::config::confd_purge: true
