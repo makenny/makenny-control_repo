@@ -1,4 +1,19 @@
-class roles::client {
+#
+
+#
+class profile::monitoring::client (
+  String $consul_version = '1.6.2',
+  String $exporter_version = '0.18.1',
+  String $nginx_version = '1.16.1',
+){
+
+  include ipset
+
+  notify { $module_name:
+    message  => 'applied',
+    loglevel => 'info',
+  }
+
   case $facts['os']['family'] {
     'RedHat': {
       # epel is needed by foreman and ferm
@@ -27,6 +42,9 @@ class roles::client {
       $owner = 'www-data'
       ensure_packages(['htop', 'unzip', 'vim'])
     }
+    default: {
+      fail("Encountered unexpected os family: ${facts['os']['family']}")
+    }
   }
 
   # workaround for predictable network names in Ubuntu 18.04
@@ -34,8 +52,9 @@ class roles::client {
     undef => $facts['networking']['interfaces']['enp0s8']['ip'],
     default => $facts['networking']['interfaces']['eth1']['ip'],
   }
+
   class{'consul':
-    version        => '1.6.2',
+    version        => $consul_version,
     config_dir     => '/etc/consul.d',
     pretty_config  => true,
     enable_beta_ui => true,
@@ -58,6 +77,7 @@ class roles::client {
       'retry_join'           => ['prometheus'],
     },
   }
+
   file { "/etc/consul.d/${trusted['certname']}.pem":
     ensure  => 'file',
     owner   => 'consul',
@@ -73,8 +93,8 @@ class roles::client {
                           'interrupts','tcpstat', 'textfile', 'systemd', 'qdisc', 'processes',
                           'mountstats', 'logind', 'loadavg', 'entropy', 'edac',
                           'cpufreq', 'cpu', 'conntrack', 'arp'],
-    extra_options => '--web.listen-address 127.0.0.1:9100',
-    version       => '0.18.1',
+    extra_options     => '--web.listen-address 127.0.0.1:9100',
+    version           => $exporter_version,
   }
 
   # only change selinux settings if selinux is present
@@ -125,25 +145,25 @@ class roles::client {
     group   => $owner,
     mode    => '0400',
     source  => "/etc/puppetlabs/puppet/ssl/private_keys/${trusted['certname']}.pem",
-    notify => Class['nginx::service'],
+    notify  => Class['nginx::service'],
     require => Class['nginx::config'],
   }
   file { "/etc/nginx/node_exporter_cert_${trusted['certname']}.pem":
-    ensure => 'file',
-    owner  => $owner,
-    group  => $owner,
-    mode   => '0400',
-    source => "/etc/puppetlabs/puppet/ssl/certs/${trusted['certname']}.pem",
-    notify => Class['nginx::service'],
+    ensure  => 'file',
+    owner   => $owner,
+    group   => $owner,
+    mode    => '0400',
+    source  => "/etc/puppetlabs/puppet/ssl/certs/${trusted['certname']}.pem",
+    notify  => Class['nginx::service'],
     require => Class['nginx::config'],
   }
   file { '/etc/nginx/node_exporter_puppet_crl.pem':
-    ensure => 'file',
-    owner  => $owner,
-    group  => $owner,
-    mode   => '0400',
-    source => '/etc/puppetlabs/puppet/ssl/crl.pem',
-    notify => Class['nginx::service'],
+    ensure  => 'file',
+    owner   => $owner,
+    group   => $owner,
+    mode    => '0400',
+    source  => '/etc/puppetlabs/puppet/ssl/crl.pem',
+    notify  => Class['nginx::service'],
     require => Class['nginx::config'],
   }
   file { '/etc/nginx/node_exporter_puppet_ca.pem':
@@ -156,10 +176,10 @@ class roles::client {
     require => Class['nginx::config'],
   }
   class{'nginx':
-    nginx_version => '1.16.1',
+    nginx_version => $nginx_version,
   }
   consul::service { 'node-exporter':
-    checks => [
+    checks  => [
       {
         name     => 'node_exporter health check',
         http     => 'http://127.0.0.1:9100',
@@ -167,7 +187,7 @@ class roles::client {
         timeout  => '1s'
       }
     ],
-    port   => 9100,
+    port    => 9100,
     address => $trusted['certname'],
     tags    => ['node-exporter'],
   }
@@ -189,16 +209,15 @@ class roles::client {
     require => Ferm::Chain['CONSUL'],
   }
 
-  include ipset
   ipset::set{'rfc1918':
-    ensure  => 'present',
-    set     => ['10.0.0.0/8', '172.16.0.0/12', '192.168.0.0/16'],
-    type    => 'hash:net',
+    ensure => 'present',
+    set    => ['10.0.0.0/8', '172.16.0.0/12', '192.168.0.0/16'],
+    type   => 'hash:net',
   }
   ferm::ipset{'CONSUL':
-    sets       => {
+    sets    => {
       'rfc1918' => 'ACCEPT',
     },
-    require    => Ipset::Set['rfc1918'],
+    require => Ipset::Set['rfc1918'],
   }
 }

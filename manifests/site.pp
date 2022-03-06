@@ -1,16 +1,17 @@
-node 'prometheus.local' {
-  include roles::server
-}
-node 'centosclient.local' {
-  include roles::client
+node 'puppetserver.localdomain' {
+  include role::puppetserver
 }
 
-node 'archclient.local' {
-  include roles::client
+node 'agentcentos.localdomain' {
+  include role
 }
 
-node 'ubuntuclient.local' {
-  include roles::client
+node 'agentarch.localdomain' {
+  include role
+}
+
+node 'agentubuntu.localdomain' {
+  include role
 }
 
 node default {

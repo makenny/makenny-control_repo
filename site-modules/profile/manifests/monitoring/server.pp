@@ -1,4 +1,21 @@
-class roles::server {
+#
+
+#
+class profile::monitoring::server (
+  String $consul_version = '1.6.2',
+  String $puppetserver_version = '7.14.0',
+  String $prometheus_version = '2.15.2',
+  String $exporter_version = '0.18.1',
+  String $nginx_version = '1.16.1',
+){
+
+  include ipset
+
+  notify { $module_name:
+    message  => 'applied',
+    loglevel => 'info',
+  }
+
   # epel is needed by foreman and ferm
   # foreman could provide epel for us, but we need to apply the basiscs class before :(
   $osreleasemajor = $facts['os']['release']['major']
@@ -30,7 +47,7 @@ class roles::server {
     server_ca_allow_sans            => true,
     server_ca_allow_auth_extensions => true,
     # Setup Puppet 5, not 6
-    server_puppetserver_version     => '5.3.11',
+    server_puppetserver_version     => $puppetserver_version,
     # dont create /etc/puppetlabs/code/environments/common
     server_common_modules_path      => '',
     # don't leak private data to Puppet Inc.
@@ -45,7 +62,7 @@ class roles::server {
   }
 
   class{'consul':
-    version        => '1.6.2',
+    version        => $consul_version,
     config_dir     => '/etc/consul.d',
     pretty_config  => true,
     enable_beta_ui => true,
@@ -86,19 +103,19 @@ class roles::server {
   }
 
   class{'prometheus::server':
-    version => '2.15.2',
+    version        => $prometheus_version,
     extra_options  => '--web.enable-admin-api',
     scrape_configs => [
       {
-        'job_name' => 'prometheus',
+        'job_name'        => 'prometheus',
         'scrape_interval' => '10s',
-        'scrape_timeout' => '10s',
-        'static_configs' => [
+        'scrape_timeout'  => '10s',
+        'static_configs'  => [
         {
           'targets' => [
             'localhost:9090'
           ],
-          'labels' =>
+          'labels'  =>
             {
               'alias' => 'Prometheus'
             }
@@ -160,11 +177,11 @@ class roles::server {
     notify  => Class['prometheus::run_service'],
   }
   file { "/etc/prometheus/cert_${trusted['certname']}.pem":
-    ensure => 'file',
-    owner  => 'prometheus',
-    group  => 'prometheus',
-    mode   => '0400',
-    source => "/etc/puppetlabs/puppet/ssl/certs/${trusted['certname']}.pem",
+    ensure  => 'file',
+    owner   => 'prometheus',
+    group   => 'prometheus',
+    mode    => '0400',
+    source  => "/etc/puppetlabs/puppet/ssl/certs/${trusted['certname']}.pem",
     before  => Class['prometheus::config'],
     require => Class['prometheus::install'],
     notify  => Class['prometheus::run_service'],
@@ -185,8 +202,8 @@ class roles::server {
                           'interrupts','tcpstat', 'textfile', 'systemd', 'qdisc', 'processes',
                           'mountstats', 'logind', 'loadavg', 'entropy', 'edac',
                           'cpufreq', 'cpu', 'conntrack', 'arp'],
-    extra_options => '--web.listen-address 127.0.0.1:9100',
-    version       => '0.18.1',
+    extra_options     => '--web.listen-address 127.0.0.1:9100',
+    version           => $exporter_version,
   }
   # only change selinux settings if selinux is present
   if $facts['os']['selinux']['enabled'] {
@@ -212,14 +229,14 @@ class roles::server {
       protocol => 'tcp',
       port     => 9100,
       before   => Nginx::Resource::Server['node_exporter'],
-   }
+    }
     selinux::port { 'allow-nginx-8501':
       ensure   => 'present',
       seltype  => 'http_port_t',
       protocol => 'tcp',
       port     => 8501,
       before   => Nginx::Resource::Server['consul_metrics'],
-   }
+    }
   }
   nginx::resource::server {'node_exporter':
     listen_ip         => $facts['networking']['interfaces']['eth1']['ip'],
@@ -264,6 +281,7 @@ class roles::server {
     ssl_only       => true,
     proxy          => 'http://localhost:8500',
   }
+
   file { "/etc/nginx/node_exporter_key_${trusted['certname']}.pem":
     ensure  => 'file',
     owner   => 'nginx',
@@ -273,6 +291,7 @@ class roles::server {
     notify  => Class['nginx::service'],
     require => Class['nginx::config'],
   }
+
   file { "/etc/nginx/node_exporter_cert_${trusted['certname']}.pem":
     ensure  => 'file',
     owner   => 'nginx',
@@ -282,6 +301,7 @@ class roles::server {
     notify  => Class['nginx::service'],
     require => Class['nginx::config'],
   }
+
   file { '/etc/nginx/node_exporter_puppet_crl.pem':
     ensure  => 'file',
     owner   => 'nginx',
@@ -291,6 +311,7 @@ class roles::server {
     notify  => Class['nginx::service'],
     require => Class['nginx::config'],
   }
+
   file { '/etc/nginx/node_exporter_puppet_ca.pem':
     ensure  => 'file',
     owner   => 'nginx',
@@ -300,9 +321,11 @@ class roles::server {
     notify  => Class['nginx::service'],
     require => Class['nginx::config'],
   }
+
   class{'nginx':
-    nginx_version => '1.16.1',
+    nginx_version => $nginx_version,
   }
+
   consul::service { 'node-exporter':
     checks  => [
       {
@@ -317,6 +340,7 @@ class roles::server {
     tags    => ['node-exporter'],
     require => Nginx::Resource::Server['node_exporter'],
   }
+
   consul::service { 'consul-metrics':
     checks  => [
       {
@@ -337,10 +361,12 @@ class roles::server {
     manage_service    => true,
     input_policy      => 'ACCEPT',
   }
+
   ferm::chain { 'CONSUL':
     disable_conntrack   => true,
     log_dropped_packets => false,
   }
+
   ferm::rule { 'jump_consul_chain':
     chain   => 'INPUT',
     action  => 'CONSUL',
@@ -349,16 +375,15 @@ class roles::server {
     require => Ferm::Chain['CONSUL'],
   }
 
-  include ipset
   ipset::set{'rfc1918':
-    ensure  => 'present',
-    set     => ['10.0.0.0/8', '172.16.0.0/12', '192.168.0.0/16'],
-    type    => 'hash:net',
+    ensure => 'present',
+    set    => ['10.0.0.0/8', '172.16.0.0/12', '192.168.0.0/16'],
+    type   => 'hash:net',
   }
   ferm::ipset{'CONSUL':
-    sets       => {
+    sets    => {
       'rfc1918' => 'ACCEPT',
     },
-    require    => Ipset::Set['rfc1918'],
+    require => Ipset::Set['rfc1918'],
   }
 }
