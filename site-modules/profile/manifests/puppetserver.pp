@@ -2,8 +2,12 @@
 
 #
 class profile::puppetserver {
-  notify { $module_name:
+
+  include profile
+
+  notify { "${module_name} puppetserver":
     message  => 'applied',
     loglevel => 'info',
   }
+
 }

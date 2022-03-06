@@ -5,7 +5,7 @@ class profile::monitoring (
   Boolean $server = false,
 ){
 
-  notify { $module_name:
+  notify { "${module_name} monitoring":
     message  => 'applied',
     loglevel => 'info',
   }
