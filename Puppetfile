@@ -1,16 +1,16 @@
-mod 'puppet-ferm'
-mod 'puppet-prometheus'
-mod 'puppet-nginx'
-mod 'puppet-ipset'
-mod 'puppet-selinux'
-mod 'KyleAnderson-consul'
-mod 'theforeman-puppet'
+mod 'puppet-ferm', :latest
+mod 'puppet-prometheus', :latest
+mod 'puppet-nginx', :latest
+mod 'puppet-ipset', :latest
+mod 'puppet-selinux', :latest
+mod 'KyleAnderson-consul', :latest
+mod 'theforeman-puppet', :latest
 # dependencies
-mod 'puppet-archive'
-mod 'puppet-extlib'
-mod 'puppetlabs-concat'
-mod 'puppetlabs-inifile'
-mod 'puppetlabs-translate'
-mod 'puppetlabs-apt'
-mod 'puppetlabs-stdlib'
-mod 'camptocamp-systemd'
+mod 'puppet-archive', :latest
+mod 'puppet-extlib', :latest
+mod 'puppetlabs-concat', :latest
+mod 'puppetlabs-inifile', :latest
+mod 'puppetlabs-translate', :latest
+mod 'puppetlabs-apt', :latest
+mod 'puppetlabs-stdlib', :latest
+mod 'camptocamp-systemd', :latest

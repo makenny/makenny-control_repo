@@ -1,14 +1,18 @@
-node prometheus {
+node 'prometheus.local' {
   include roles::server
 }
-node centosclient {
+node 'centosclient.local' {
   include roles::client
 }
 
-node archclient {
+node 'archclient.local' {
   include roles::client
 }
 
-node ubuntuclient {
+node 'ubuntuclient.local' {
   include roles::client
+}
+
+node default {
+  fail("Unexpected node encountered: ${facts['fqdn']}")
 }
