@@ -322,8 +322,12 @@ class profile::monitoring::server (
     require => Class['nginx::config'],
   }
 
-  class{'nginx':
+  class { 'nginx':
     nginx_version => $nginx_version,
+  }
+
+  class{ 'nginx::resource::server':
+    listen_port => 8000,
   }
 
   consul::service { 'node-exporter':
