@@ -275,7 +275,7 @@ class profile::monitoring::server (
     ensure         => 'present',
     server         => 'consul_metrics',
     location       => '/v1/agent/metrics',
-    location_allow => ['127.0.0.1', $facts['ipaddress'] ],
+    location_allow => ['127.0.0.1', $facts['networking']['interfaces']['eth1']['ip'] ],
     location_deny  => ['all'],
     ssl            => true,
     ssl_only       => true,
