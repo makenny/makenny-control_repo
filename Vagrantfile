@@ -2,7 +2,7 @@ Vagrant.configure("2") do |config|
   config.hostmanager.enabled = true                           # Update /etc/hosts with entries from other VMs
   config.hostmanager.manage_host = false                      # Don't update /etc/hosts on the Hypervisor
   config.hostmanager.include_offline = true                   # Also document offline VMs
-  # config.hostmanager.enabled = false                          # Disable the default hostmanager behavior
+  # config.hostmanager.enabled = false                        # Disable the default hostmanager behavior
   config.vm.provision :hostmanager                            # update /etc/hosts during provisioning
   config.vm.define "puppetserver" do |server|
     server.vm.box = "centos/7"                                # base image we use
@@ -56,7 +56,7 @@ Vagrant.configure("2") do |config|
     SHELL
   end
   config.vm.define "agentarch" do |arch|
-    arch.vm.box = "archlinux/archlinux"                        # base image we use
+    arch.vm.box = "generic/arch"                               # base image we use
     arch.vm.hostname = "agentarch.localdomain"                 # hostname that's configured within the VM
     arch.vm.network :private_network
     arch.vm.provider :vmware_desktop do |vmware|

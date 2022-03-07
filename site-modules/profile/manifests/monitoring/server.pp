@@ -351,7 +351,7 @@ class profile::monitoring::server (
       }
     ],
     port    => 8501,
-    address => $facts['networking']['interfaces']['eth1']['ip'],
+    address => $trusted['certname'],
     tags    => ['consul-server'],
     require => Nginx::Resource::Server['consul_metrics'],
   }
