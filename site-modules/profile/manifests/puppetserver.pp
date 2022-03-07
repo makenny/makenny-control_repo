@@ -14,8 +14,6 @@ class profile::puppetserver {
 
   # class { 'puppetdb::master::config': }
 
-  class { 'puppet::server::puppetdb':
-    server => 'puppetserver.localdomain',
-  }
+  class { 'puppet::server::puppetdb': }
 
 }
