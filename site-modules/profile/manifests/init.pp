@@ -16,9 +16,9 @@ class profile (
     comment      => 'managed by puppet',
     host_aliases => $hostname_portion,
     ip           => $facts['ipaddress'],
-    tag          => 'automatic hosts',
+    tag          => 'automatic_hosts',
   }
 
-  Host <<| tag == 'automatic hosts' |>>
+  Host <<| tag == 'automatic_hosts' |>>
 
 }
