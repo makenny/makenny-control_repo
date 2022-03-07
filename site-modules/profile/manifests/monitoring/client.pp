@@ -2,9 +2,9 @@
 
 #
 class profile::monitoring::client (
-  String $consul_version = '1.6.2',
+  String $consul_version = '1.11.4',
   String $exporter_version = '0.18.1',
-  String $nginx_version = '1.16.1',
+  String $nginx_version = '1.21.5',
 ){
 
   include ipset

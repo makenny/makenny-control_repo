@@ -73,7 +73,7 @@ Vagrant.configure("2") do |config|
     SHELL
   end
   config.vm.define "agentubuntu" do |ubuntu|
-    ubuntu.vm.box = "generic/ubuntu2004"                           # base image we use
+    ubuntu.vm.box = "generic/ubuntu2004"                       # base image we use
     ubuntu.vm.hostname = "agentubuntu.localdomain"             # hostname that's configured within the VM
     ubuntu.vm.network :private_network
     ubuntu.vm.provider :vmware_desktop do |vmware|

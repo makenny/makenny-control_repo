@@ -2,11 +2,11 @@
 
 #
 class profile::monitoring::server (
-  String $consul_version = '1.6.2',
+  String $consul_version = '1.11.4',
   String $puppetserver_version = '7.14.0',
   String $prometheus_version = '2.15.2',
   String $exporter_version = '0.18.1',
-  String $nginx_version = '1.16.1',
+  String $nginx_version = '1.21.5',
 ){
 
   include ipset
