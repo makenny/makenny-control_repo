@@ -18,8 +18,8 @@ Vagrant.configure("2") do |config|
     end
     server.vm.provision "shell", inline: <<-SHELL
       sed -i '/search.*/d' /etc/resolv.conf
-      sed -i '/127.0.0.1.*puppeserver.*/d' /etc/hosts
-      echo "$(hostname -I | awk '{ print $2 }') $(hostname --fqdn) $(hostname -s) puppet" >> /etc/hosts"
+      sed -i '/^127.0.1.1/d' /etc/hosts
+      echo "$(hostname -I | awk '{ print $2 }') $(hostname --fqdn) $(hostname -s) puppet" >> /etc/hosts
       yum install --assumeyes https://yum.puppetlabs.com/puppet7/puppet7-release-el-7.noarch.rpm
       yum install --assumeyes puppet puppetserver
       source /etc/profile.d/puppet-agent.sh
