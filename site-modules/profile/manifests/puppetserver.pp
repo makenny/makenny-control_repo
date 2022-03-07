@@ -10,4 +10,8 @@ class profile::puppetserver {
     loglevel => 'info',
   }
 
+  class { 'puppetdb': }
+
+  class { 'puppetdb::master::config': }
+
 }
