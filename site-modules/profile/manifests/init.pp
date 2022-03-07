@@ -9,16 +9,19 @@ class profile (
     loglevel => 'info',
   }
 
-  # unless($trusted['certname'] == $facts['fqdn']) {
-  $hostname_portion = split($trusted['certname'], '\.')[0]
+  # create a virtual host resource based on known information
+  # and export it back to the Puppet Master
   @@host { $trusted['certname']:
     ensure       => present,
     comment      => 'managed by puppet',
     host_aliases => $hostname_portion,
     ip           => $facts['ipaddress'],
-    tag          => 'automatic_hosts',
   }
 
-  Host <<| tag == 'automatic_hosts' |>>
+  Host <<| |>>
+
+  # resources { 'host':
+  #   purge => true,
+  # }
 
 }

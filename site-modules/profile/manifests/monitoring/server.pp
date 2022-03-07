@@ -238,6 +238,7 @@ class profile::monitoring::server (
       before   => Nginx::Resource::Server['consul_metrics'],
     }
   }
+
   nginx::resource::server {'node_exporter':
     listen_ip         => $facts['networking']['interfaces']['eth1']['ip'],
     ipv6_enable       => false,
@@ -254,6 +255,7 @@ class profile::monitoring::server (
     ssl_protocols     => 'TLSv1.3',
     ssl_verify_client => 'on',
   }
+
   nginx::resource::server{'consul_metrics':
     listen_ip         => $facts['networking']['interfaces']['eth1']['ip'],
     ipv6_enable       => false,
