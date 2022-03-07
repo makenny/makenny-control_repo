@@ -7,7 +7,7 @@ Vagrant.configure("2") do |config|
   config.vm.define "puppetserver" do |server|
     server.vm.box = "centos/7"                                # base image we use
     server.vm.hostname = "puppetserver.localdomain"           # hostname that's configured within the VM
-    server.vm.network :private_network
+    # server.vm.network :private_network
     server.vm.network "forwarded_port", guest: 9090, host: 9090
     server.vm.network "forwarded_port", guest: 443, host: 8443
     server.vm.provider :vmware_desktop do |vmware|
@@ -25,14 +25,14 @@ Vagrant.configure("2") do |config|
       source /etc/profile.d/puppet-agent.sh
       echo 'export PATH="/usr/local/bin:/usr/local/sbin:${PATH}"' > /etc/profile.d/path.sh
       puppet module install puppet-r10k --environment production
-      puppetserver ca generate --certname puppetserver.localdomain --subject-alt-names puppet.localdomain,puppet,puppeserver,puppetserve.localdomain --ca-client
+      puppetserver ca generate --certname puppetserver.localdomain --subject-alt-names puppet.localdomain,puppet,puppetserver,puppetserver.localdomain --ca-client
       puppet resource service puppetserver enable=true ensure=running
       puppet apply -e 'include r10k'
-      sed -i 's#remote:.*#remote: https://github.com/makenny/prometheusdemo.git#' /etc/puppetlabs/r10k/r10k.yamls
+      sed -i 's#remote:.*#remote: https://github.com/makenny/prometheusdemo.git#' /etc/puppetlabs/r10k/r10k.yaml
       yum install --assumeyes git
       r10k deploy environment production --puppetfile --verbose --generate-types
-      puppet agent -t --server puppetserver.localdomain
-      puppet agent -t --server puppetserver.localdomain
+      puppet agent -t # --server puppetserver.localdomain
+      puppet agent -t # --server puppetserver.localdomain
     SHELL
   end
   config.vm.define "agentcentos" do |centos|
