@@ -9,8 +9,8 @@ class profile (
     loglevel => 'info',
   }
 
-  # create a virtual host resource based on known information
-  # and export it back to the Puppet Master
+  # export host
+  $hostname_portion = split($trusted['certname'], '\.')[0]
   @@host { $trusted['certname']:
     ensure       => present,
     comment      => 'managed by puppet',
@@ -18,6 +18,7 @@ class profile (
     ip           => $facts['ipaddress'],
   }
 
+  # collect hosts
   Host <<| |>>
 
   # resources { 'host':
