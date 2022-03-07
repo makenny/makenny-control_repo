@@ -16,23 +16,22 @@ Vagrant.configure("2") do |config|
       vmware.vmx["displayName"] = "puppetserver"
       vmware.vmx["ethernet0.pcislotnumber"] = "32"
     end
-
     server.vm.provision "shell", inline: <<-SHELL
       sed -i '/search.*/d' /etc/resolv.conf
-      sed -i '/127.0.0.1.*prometheus.*prometheus puppet/d' /etc/hosts
+      sed -i '/127.0.0.1.*puppeserver.*puppetserver puppet/d' /etc/hosts
       yum install --assumeyes https://yum.puppetlabs.com/puppet7/puppet7-release-el-7.noarch.rpm
       yum install --assumeyes puppet puppetserver
       source /etc/profile.d/puppet-agent.sh
       echo 'export PATH="/usr/local/bin:/usr/local/sbin:${PATH}"' > /etc/profile.d/path.sh
       puppet module install puppet-r10k --environment production
-      puppetserver ca generate --certname prometheus.local --subject-alt-names puppet.local,puppet,prometheus,prometheus.local --ca-client
+      puppetserver ca generate --certname puppetserver.localdomain --subject-alt-names puppet.localdomain,puppet,puppeserver,puppetserve.localdomain --ca-client
       puppet resource service puppetserver enable=true ensure=running
       puppet apply -e 'include r10k'
       sed -i 's#remote:.*#remote: https://github.com/makenny/prometheusdemo.git#' /etc/puppetlabs/r10k/r10k.yaml
       yum install --assumeyes git
       r10k deploy environment production --puppetfile --verbose --generate-types
-      puppet agent -t --server prometheus.local
-      puppet agent -t --server prometheus.local
+      puppet agent -t --server puppetserver.localdomain
+      puppet agent -t --server puppetserver.localdomain
     SHELL
   end
   config.vm.define "agentcentos" do |centos|
@@ -52,8 +51,8 @@ Vagrant.configure("2") do |config|
       yum install --assumeyes puppet
       source /etc/profile.d/puppet-agent.sh
       echo 'export PATH="/usr/local/bin:/usr/local/sbin:${PATH}"' > /etc/profile.d/path.sh
-      puppet agent -t --environment production --server prometheus.local
-      puppet agent -t --environment production --server prometheus.local
+      puppet agent -t --environment production --server puppetserver.localdomain
+      puppet agent -t --environment production --server puppetserver.localdomain
     SHELL
   end
   config.vm.define "agentarch" do |arch|
@@ -67,15 +66,14 @@ Vagrant.configure("2") do |config|
       vmware.vmx["ethernet0.pcislotnumber"] = "32"
     end
     arch.vm.provision "shell", inline: <<-SHELL
-        sed -i '/search.*/d' /etc/resolv.conf
-        sed -i '/127.0.0.1.*archclient.*archclient/g' /etc/hosts
-        pacman -S --refresh --sysupgrade --noconfirm puppet --ignore linux,linux-headers,linux-api-headers,linux-firmware
-        puppet agent -t --environment production --server prometheus.local
-      SHELL
-    end
+      sed -i '/search.*/d' /etc/resolv.conf
+      sed -i '/127.0.0.1.*archclient.*archclient/g' /etc/hosts
+      pacman -S --refresh --sysupgrade --noconfirm puppet --ignore linux,linux-headers,linux-api-headers,linux-firmware
+      puppet agent -t --environment production --server puppetserver.localdomain
+    SHELL
   end
   config.vm.define "agentubuntu" do |ubuntu|
-    ubuntu.vm.box = "ubuntu/bionic64"                          # base image we use
+    ubuntu.vm.box = "generic/ubuntu2004"                           # base image we use
     ubuntu.vm.hostname = "agentubuntu.localdomain"             # hostname that's configured within the VM
     ubuntu.vm.network :private_network
     ubuntu.vm.provider :vmware_desktop do |vmware|
@@ -87,15 +85,15 @@ Vagrant.configure("2") do |config|
     ubuntu.vm.provision "shell", inline: <<-SHELL
       sed -i '/search.*/d' /etc/resolv.conf
       sed -i '/127.0.0.1.*ubuntuclient.*ubuntuclient/g' /etc/hosts
-      wget https://apt.puppet.com/puppet5-release-bionic.deb
+      wget https://apt.puppet.com/puppet7-release-focal.deb
       export DEBIAN_FRONTEND=noninteractive
-      dpkg -i puppet5-release-bionic.deb
-      rm puppet5-release-bionic.deb
+      dpkg -i puppet7-release-focal.deb
+      rm puppet7-release-focal.deb
       apt-get update
       apt-get install -y puppet-agent
       source /etc/profile.d/puppet-agent.sh
-      puppet agent -t --environment production --server prometheus.local
-      puppet agent -t --environment production --server prometheus.local
+      puppet agent -t --environment production --server puppetserver.localdomain
+      puppet agent -t --environment production --server puppetserver.localdomain
     SHELL
   end
 end
