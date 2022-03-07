@@ -35,7 +35,7 @@ class profile::monitoring::server (
   ensure_packages(['unzip', 'vim-enhanced', 'htop', 'bind-utils'], {'require' => Yumrepo['epel']})
 
   # the whole point of this is that we need a puppetserver that automatically sign certificate requests
-  class{'puppet':
+  class{ 'puppet':
     # Don't configure the agent
     agent                           => false,
     # configure the server
@@ -53,7 +53,7 @@ class profile::monitoring::server (
     # don't leak private data to Puppet Inc.
     server_check_for_updates        => false,
     # store puppet reports on disk, dont send them to foreman
-    server_reports                  => 'store',
+    server_reports                  => 'puppetdb,store',
     # Don't configure an ENC script
     server_external_nodes           => '',
     # use a modern parser
