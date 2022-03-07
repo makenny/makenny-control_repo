@@ -10,14 +10,15 @@ class profile (
   }
 
   # unless($trusted['certname'] == $facts['fqdn']) {
-  $hostname_of_certname = split($trusted['certname'], '\.')[0]
+  $hostname_portion = split($trusted['certname'], '\.')[0]
   @@host { $trusted['certname']:
     ensure       => present,
     comment      => 'managed by puppet',
-    host_aliases => $hostname_of_certname,
+    host_aliases => $hostname_portion,
     ip           => $facts['ipaddress'],
+    tag          => 'automatic hosts',
   }
 
-  Host <<| |>>
+  Host <<| tag == 'automatic hosts' |>>
 
 }

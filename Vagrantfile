@@ -28,7 +28,7 @@ Vagrant.configure("2") do |config|
       puppetserver ca generate --certname puppetserver.localdomain --subject-alt-names puppet.localdomain,puppet,puppeserver,puppetserve.localdomain --ca-client
       puppet resource service puppetserver enable=true ensure=running
       puppet apply -e 'include r10k'
-      sed -i 's#remote:.*#remote: https://github.com/makenny/prometheusdemo.git#' /etc/puppetlabs/r10k/r10k.yaml
+      sed -i 's#remote:.*#remote: https://github.com/makenny/prometheusdemo.git#' /etc/puppetlabs/r10k/r10k.yamls
       yum install --assumeyes git
       r10k deploy environment production --puppetfile --verbose --generate-types
       puppet agent -t --server puppetserver.localdomain
