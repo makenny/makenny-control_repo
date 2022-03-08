@@ -17,22 +17,24 @@ Vagrant.configure("2") do |config|
       vmware.vmx["ethernet0.pcislotnumber"] = "32"
     end
     server.vm.provision "shell", inline: <<-SHELL
-      sed -i '/search.*/d' /etc/resolv.conf
-      sed -i '/^127.0.1.1/d' /etc/hosts
-      echo "$(hostname -I | awk '{ print $2 }') $(hostname --fqdn) $(hostname -s) puppet" >> /etc/hosts
-      yum install --assumeyes https://yum.puppetlabs.com/puppet7/puppet7-release-el-7.noarch.rpm
-      yum install --assumeyes puppet puppetserver
+      /bin/sed -i '/search.*/d' /etc/resolv.conf
+      /bin/sed -i '/^127.0.1.1/d' /etc/hosts
+      /bin/grep -Fq "$(/bin/hostname -I)" /etc/hosts || echo "$(/bin/hostname -I) $(/bin/hostname --fqdn) $(/bin/hostname -s) puppet # locally managed" >> /etc/hosts
+      /bin/yum install --assumeyes https://yum.puppetlabs.com/puppet7/puppet7-release-el-7.noarch.rpm
+      /bin/yum install --assumeyes puppet puppetserver
       source /etc/profile.d/puppet-agent.sh
       echo 'export PATH="/usr/local/bin:/usr/local/sbin:${PATH}"' > /etc/profile.d/path.sh
-      puppet module install puppet-r10k --environment production
-      puppetserver ca generate --certname puppetserver.localdomain --subject-alt-names puppet.localdomain,puppet,puppetserver,puppetserver.localdomain --ca-client
-      puppet resource service puppetserver enable=true ensure=running
-      puppet apply -e 'include r10k'
-      sed -i 's#remote:.*#remote: https://github.com/makenny/prometheusdemo.git#' /etc/puppetlabs/r10k/r10k.yaml
-      yum install --assumeyes git
-      r10k deploy environment production --puppetfile --verbose --generate-types
-      puppet agent -t # --server puppetserver.localdomain
-      puppet agent -t # --server puppetserver.localdomain
+      /opt/puppetlabs/bin/puppet module install puppet-r10k --environment production
+      # /opt/puppetlabs/bin/puppet resource service puppetserver enable=false ensure=stopped
+      # rm -rf /etc/puppetlabs/puppet/ssl/* /etc/puppetlabs/puppetserver/ca/*
+      # /opt/puppetlabs/bin/puppetserver ca generate --certname puppetserver.localdomain --subject-alt-names puppet.localdomain,puppet,puppetserver,puppetserver.localdomain --ca-client
+      /opt/puppetlabs/bin/puppet resource service puppetserver enable=true ensure=running
+      /opt/puppetlabs/bin/puppet apply -e 'include r10k'
+      /bin/sed -i 's#remote:.*#remote: https://github.com/makenny/makenny-control_repo.git#' /etc/puppetlabs/r10k/r10k.yaml
+      /bin/yum install --assumeyes git
+      /bin/r10k deploy environment production --puppetfile --verbose --generate-types
+      /opt/puppetlabs/bin/puppet agent -t # --server puppetserver.localdomain
+      /opt/puppetlabs/bin/puppet agent -t # --server puppetserver.localdomain
     SHELL
   end
   config.vm.define "agentcentos" do |centos|
