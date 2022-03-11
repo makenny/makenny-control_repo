@@ -61,7 +61,7 @@ class profile::monitoring::server (
   #   require                         => Yumrepo['epel'],
   # }
 
-  class{'consul':
+  class{ 'consul':
     version        => $consul_version,
     config_dir     => '/etc/consul.d',
     pretty_config  => true,
