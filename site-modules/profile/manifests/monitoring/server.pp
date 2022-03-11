@@ -240,7 +240,7 @@ class profile::monitoring::server (
   }
 
   nginx::resource::server {'node_exporter':
-    listen_ip         => $facts['networking']['interfaces']['eth1']['ip'],
+    listen_ip         => $facts['networking']['interfaces']['eth0']['ip'],
     ipv6_enable       => false,
     server_name       => [$trusted['certname']],
     listen_port       => 9100,
