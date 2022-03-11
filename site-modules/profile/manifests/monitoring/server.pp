@@ -67,7 +67,7 @@ class profile::monitoring::server (
     pretty_config  => true,
     enable_beta_ui => true,
     config_hash    => {
-      'bind_addr'            => $facts['networking']['interfaces']['eth1']['ip'],
+      'bind_addr'            => $facts['networking']['interfaces']['eth0']['ip'],
       'bootstrap_expect'     => 1,
       'data_dir'             => '/opt/consul',
       'datacenter'           => 'NBG',
