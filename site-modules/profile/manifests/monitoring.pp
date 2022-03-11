@@ -12,7 +12,6 @@ class profile::monitoring (
 
   if $server {
     include profile::monitoring::server
-    include profile::monitoring::client
   } else {
     include profile::monitoring::client
   }
