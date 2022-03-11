@@ -9,7 +9,9 @@ Vagrant.configure("2") do |config|
     server.vm.hostname = "puppetserver.localdomain"           # hostname that's configured within the VM
     # server.vm.network :private_network
     server.vm.network "forwarded_port", guest: 9090, host: 9090
+    server.vm.network "forwarded_port", guest: 9100, host: 9100
     server.vm.network "forwarded_port", guest: 80, host: 8080
+    server.vm.network "forwarded_port", guest: 8501, host: 8501
     server.vm.network "forwarded_port", guest: 443, host: 8443
     server.vm.provider :vmware_desktop do |vmware|
       vmware.memory = 4096                                    # Ram in MB
