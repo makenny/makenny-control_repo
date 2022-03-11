@@ -23,6 +23,7 @@ class profile::monitoring::client (
         '7'     => 'https://fedoraproject.org/static/352C64E5.txt',
         default => 'https://fedoraproject.org/static/0608B895.txt',
       }
+      
       yumrepo { 'epel':
         descr      => "Extra Packages for Enterprise Linux ${osreleasemajor} - \$basearch",
         mirrorlist => "https://mirrors.fedoraproject.org/metalink?repo=epel-${osreleasemajor}&arch=\$basearch",
@@ -46,14 +47,14 @@ class profile::monitoring::client (
       fail("Encountered unexpected os family: ${facts['os']['family']}")
     }
   }
-
+  
   # workaround for predictable network names in Ubuntu 18.04
   $bind_ip = fact('networking.interfaces.eth1.ip') ? {
     undef => $facts['networking']['interfaces']['enp0s8']['ip'],
     default => $facts['networking']['interfaces']['eth1']['ip'],
   }
 
-  class{'consul':
+  class { 'consul':
     version        => $consul_version,
     config_dir     => '/etc/consul.d',
     pretty_config  => true,
