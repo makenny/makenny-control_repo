@@ -1,14 +1,15 @@
 Vagrant.configure("2") do |config|
-  config.hostmanager.enabled = true                           # Update /etc/hosts with entries from other VMs
+  config.hostmanager.enabled = false                          # Update /etc/hosts with entries from other VMs
   config.hostmanager.manage_host = false                      # Don't update /etc/hosts on the Hypervisor
   config.hostmanager.ignore_private_ip = false
-  config.hostmanager.include_offline = true
+  config.hostmanager.include_offline = false
   config.vm.provision :hostmanager                            # update /etc/hosts during provisioning
   config.vm.define "puppetserver" do |server|
     server.vm.box = "centos/7"                                # base image we use
     server.vm.hostname = "puppetserver.localdomain"           # hostname that's configured within the VM
     # server.vm.network :private_network
     server.vm.network "forwarded_port", guest: 9090, host: 9090
+    server.vm.network "forwarded_port", guest: 80, host: 8080
     server.vm.network "forwarded_port", guest: 443, host: 8443
     server.vm.provider :vmware_desktop do |vmware|
       vmware.memory = 4096                                    # Ram in MB
