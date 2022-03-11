@@ -257,7 +257,7 @@ class profile::monitoring::server (
   }
 
   nginx::resource::server{'consul_metrics':
-    listen_ip         => $facts['networking']['interfaces']['eth1']['ip'],
+    listen_ip         => $facts['networking']['interfaces']['eth0']['ip'],
     ipv6_enable       => false,
     server_name       => [$trusted['certname']],
     listen_port       => 8501,
