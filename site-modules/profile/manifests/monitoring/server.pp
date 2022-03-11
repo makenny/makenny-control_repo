@@ -11,7 +11,7 @@ class profile::monitoring::server (
 
   include ipset
 
-  notify { $module_name:
+  notify { "${module_name} server":
     message  => 'applied',
     loglevel => 'info',
   }

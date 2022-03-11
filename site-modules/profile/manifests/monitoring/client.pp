@@ -9,7 +9,7 @@ class profile::monitoring::client (
 
   include ipset
 
-  notify { $module_name:
+  notify { "${module_name} client":
     message  => 'applied',
     loglevel => 'info',
   }
